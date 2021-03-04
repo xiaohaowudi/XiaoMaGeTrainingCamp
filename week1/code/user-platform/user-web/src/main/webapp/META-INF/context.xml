@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <Resource name="jdbc/UserPlatformDB"
+              type="javax.sql.DataSource"
+              auth="Container"
+              description="MySql database for User Platform"
+              maxActive="100"
+              maxIdle="30"
+              maxWait="10000"
+              username="root"
+              password="123456"
+              driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://192.168.3.144:3306/xiaomage?characterEncoding=UTF-8"/>
+</Context>
