@@ -10,25 +10,23 @@
 <!--    </persistence-unit>-->
 
 
-    <persistence-unit name="emp">
+    <persistence-unit name="emf">
         <properties>
             <!--配置数据库的方言信息-->
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
 
             <!--数据源相关信息-->
-            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://192.168.3.144:3306/spring_data"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://192.168.3.144:3306/xiaomage"/>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.user" value="root"/>
             <property name="javax.persistence.jdbc.password" value="123456"/>
 
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.use-new-id-generator-mappings" value="false"/>
 
-            <property name="hibernate.hbm2ddl.auto" value="create"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
         </properties>
     </persistence-unit>
-
-
-
 
 </persistence>

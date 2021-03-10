@@ -6,6 +6,9 @@ import org.geektimes.projects.user.sql.SqlExecutor;
 import org.geektimes.projects.user.sql.DBConnectionManager;
 
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.persistence.EntityManager;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -17,7 +20,13 @@ import java.util.function.Function;
 
 public class DatabaseUserRepository implements UserRepository {
 
-    private final SqlExecutor sqlExecutor;
+    @Resource(name = "bean/DBConnectionManager")
+    private DBConnectionManager connectionManager;
+
+    @Resource(name = "bean/EntityManager")
+    private EntityManager entityManager;
+
+    private SqlExecutor sqlExecutor;
 
     private static final String CREATE_TABLE_DDL_SQL = "create table if not exists users (\n" +
             "    id int not null unique auto_increment primary key,\n" +
@@ -27,12 +36,12 @@ public class DatabaseUserRepository implements UserRepository {
             "    phoneNumber varchar(32) not null\n" +
             ")";
 
-    private static final String INSERT_USERS_DML_SQL = "insert into users(id, name, password, email, phoneNumber) values (?,?,?,?,?);";
-    private static final String QUERY_ALL_USERS_DML_SQL = "select id,name,password,email,phoneNumber from users;";
-    private static final String QUERY_USERS_BY_NAME_PASSWORD_SQL = "select id,name,password,email,phoneNumber from users where name=? and password=?;";
-    private static final String QUERY_USERS_BY_ID_SQL = "select id,name,password,email,phoneNumber from users where id=?;";
-    private static final String UPDATE_USERS_SQL = "update users set name=?, password=?,email=?,phoneNumber=? where id=?;";
-    private static final String DELETE_USER_BY_ID_SQL = "delete from users where id=?;";
+    private static final String INSERT_USERS_DML_SQL = "insert into User(id, name, password, email, phoneNumber) values (?,?,?,?,?);";
+    private static final String QUERY_ALL_USERS_DML_SQL = "select id,name,password,email,phoneNumber from User;";
+    private static final String QUERY_USERS_BY_NAME_PASSWORD_SQL = "select id,name,password,email,phoneNumber from User where name=? and password=?;";
+    private static final String QUERY_USERS_BY_ID_SQL = "select id,name,password,email,phoneNumber from User where id=?;";
+    private static final String UPDATE_USERS_SQL = "update User set name=?, password=?,email=?,phoneNumber=? where id=?;";
+    private static final String DELETE_USER_BY_ID_SQL = "delete from User where id=?;";
 
     static Map<Class, String> fieldType2ResultSetMethodNameMapping = new HashMap<>();
     static Map<String, String> fieldName2columnNameMapping = new HashMap<>();
@@ -81,29 +90,37 @@ public class DatabaseUserRepository implements UserRepository {
         return userList;
     };
 
-    public DatabaseUserRepository(DBConnectionManager dbMng) {
-        sqlExecutor = new SqlExecutor(dbMng);
-
-//        try {
-//            Connection connection = dbMng.getConnection();
-//            Statement stat = connection.createStatement();
-//            stat.execute(CREATE_TABLE_DDL_SQL);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+    @PostConstruct
+    public void init() {
+        sqlExecutor = new SqlExecutor(connectionManager);
     }
 
     @Override
     public boolean save(User user) {
-        return sqlExecutor.executeUpdate(
-                INSERT_USERS_DML_SQL,
-                DEFAULT_EXCEPTION_HANDLER,
-                user.getId(),
-                user.getName(),
-                user.getPassword(),
-                user.getEmail(),
-                user.getPhoneNumber()
-        ) == 1;
+
+        try {
+            entityManager.getTransaction().begin();
+            entityManager.persist(user);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            entityManager.getTransaction().rollback();
+            return false;
+        }
+
+        entityManager.getTransaction().commit();
+        return true;
+
+
+//        return sqlExecutor.executeUpdate(
+//                INSERT_USERS_DML_SQL,
+//                DEFAULT_EXCEPTION_HANDLER,
+//                user.getId(),
+//                user.getName(),
+//                user.getPassword(),
+//                user.getEmail(),
+//                user.getPhoneNumber()
+//        ) == 1;
     }
 
     @Override

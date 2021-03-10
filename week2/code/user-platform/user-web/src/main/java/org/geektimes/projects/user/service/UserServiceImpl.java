@@ -24,14 +24,15 @@ public class UserServiceImpl implements UserService {
     @Resource(name = "bean/DBConnectionManager")
     private DBConnectionManager connectionManager;
 
+    @Resource(name = "bean/UserRepository")
     private UserRepository userRepository;
 
     private static final Logger logger = Logger.getLogger(UserServiceImpl.class.getName());
 
-    @PostConstruct
-    public void init() {
-        userRepository = new DatabaseUserRepository(connectionManager);
-    }
+//    @PostConstruct
+//    public void init() {
+//        userRepository = new DatabaseUserRepository(connectionManager);
+//    }
 
     @Override
     public boolean register(User user) {
